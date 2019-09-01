@@ -147,8 +147,8 @@ async function bubbleSort(arr) {
 //     let right_arr = arr.slice(middle, arr.length);
 
 //     if (arr.length > 1) {
-//         left_arr = await mergeSort([...left_arr]);
-//         right_arr = await mergeSort([...right_arr]);
+//         left_arr = await mergeSort(left_arr);
+//         right_arr = await mergeSort(right_arr);
 //     }
 
 //     await sleep(0.01);
@@ -180,10 +180,12 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
     
         for (let i=left_cursor; i<=left_end;i++) {
             merged_arr.push(arr[i]);
+            await sleep(DELAY);
         }
     
         for (let i=right_cursor; i<=right_end;i++) {
             merged_arr.push(arr[i]);
+            await sleep(DELAY);
         }
     
         arr = arr.slice(0, left_start).concat(merged_arr).concat(arr.slice(right_end + 1));
@@ -199,10 +201,13 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
     let middle = Math.floor((end+start)/2);
 
     if (end - start > 1) {
-        let arr1 =  mergeSort(arr, start, middle);
-        let arr2 =  mergeSort(arr, middle+1, end);
-        const vals = await Promise.all([arr1, arr2]);
-        arr = vals[0].slice(0, middle + 1).concat(vals[1].slice(middle + 1));
+        // let arr1 =  mergeSort(arr, start, middle);
+        // let arr2 =  mergeSort(arr, middle+1, end);
+        // const vals = await Promise.all([arr1, arr2]);
+        // arr = vals[0].slice(0, middle + 1).concat(vals[1].slice(middle + 1));
+        let arr1 = await mergeSort(arr, start, middle);
+        let arr2 = await mergeSort(arr, middle+1, end);
+        arr = arr1.slice(0, middle + 1).concat(arr2.slice(middle + 1));
         displayArr(arr);
     }
     
