@@ -1,4 +1,5 @@
 function initArr(len) {
+    // initialises an arr of length len, values ranging (0,1)
     let arr = [];
 
     for (let i=0;i<len;i++) {
@@ -11,6 +12,7 @@ function initArr(len) {
 }
 
 function buttonInitArray() {
+    // inits array from button press
     arr = [];
     let len = parseInt(document.getElementById("length").value);
     for (let i=0;i<len;i++) {
@@ -25,6 +27,7 @@ function buttonInitArray() {
 
 
 function displayArr(arr) {
+    // displays the current array on the root div
     const element = document.getElementById("root");
 
     const root = document.createElement("div");
@@ -48,6 +51,7 @@ function displayArr(arr) {
 }
 
 function highlightActive(_class, ...index) {
+    // highlights the index^th element by giving it the className _class
     let items = document.querySelectorAll('.item');
     items.forEach(element => {
         element.classList.remove(_class);
@@ -64,14 +68,17 @@ function highlightActive(_class, ...index) {
 }
 
 function swap(a, b) {
+    // swaps a and b
     return [b, a]
 }
 
 function sleep(time) {
+    // delays execution by time (seconds)
     return new Promise(res => setTimeout(res, time*1000));
 }
 
 async function selectionSort(arr) {
+    // sorts array in ascending order using selection sort
     for (let i=0;i < arr.length-1;i++) {
         let minimum_index = i;
         for (let j=i+1;j<arr.length;j++) {
@@ -79,7 +86,7 @@ async function selectionSort(arr) {
             if (arr[j] < arr[minimum_index]) {
                 minimum_index = j;
             }
-            await sleep(0.01);
+            await sleep(DELAY);
         }
 
         [arr[i], arr[minimum_index]] = swap(arr[i], arr[minimum_index]);
@@ -91,6 +98,7 @@ async function selectionSort(arr) {
 }
 
 async function bubbleSort(arr) {
+    // sorts array in ascending order using bubbleSort
     for (let i=0;i<arr.length - 1;i++) {
         for (let j=0; j<arr.length - 1 - i; j++) {
             if (arr[j] > arr[j+1]) {
@@ -98,7 +106,7 @@ async function bubbleSort(arr) {
             }
             displayArr(arr);
             highlightActive('active', j);
-            await sleep(0.01);
+            await sleep(DELAY);
         }
         
         
@@ -151,7 +159,9 @@ async function bubbleSort(arr) {
 // }
 
 async function mergeSort(arr, start=0, end=arr.length-1) {
+    // sorts array in ascending order using mergesort algorithm
     async function merge(arr, left_start, left_end, right_start, right_end) {
+        // merge/sort 2 parts of the array 
         let left_cursor = left_start;
         let right_cursor = right_start;
         let merged_arr = [];
@@ -164,7 +174,7 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
                 merged_arr.push(arr[right_cursor]);
                 right_cursor++;
             }
-            await sleep(0.1);
+            await sleep(DELAY);
             highlightActive('active', left_cursor, right_cursor);
         }
     
@@ -201,18 +211,29 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
     return arr;
 }
 
-function insertionSort(arr){
+async function insertionSort(arr){
+    // sort arr in ascending order using insertion sort
     for (let i=0; i<arr.length; i++) {
-        
+        let j = i;
+        while (j > 0 && arr[j-1]>arr[j]){
+            [arr[j-1], arr[j]] = swap(arr[j-1], arr[j]);
+            displayArr(arr);
+            highlightActive('swap', j, j-1);
+            j--;
+            await sleep(DELAY);
+        }
     }
+
+    displayArr(arr);
+    return arr;
 }
 
 async function sortBy(f) {
     arr = await f(arr);
 }
 
-
 let arr = initArr(50);
+let DELAY = 0.01;
 displayArr(arr);
 
 
