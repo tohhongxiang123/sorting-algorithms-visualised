@@ -61,3 +61,8 @@ input:focus {
     border: 2px solid #7FDBFF;
     transition: all 0.2s ease-out;
 }
+
+.form-group {
+    display: flex;
+    justify-content: center;
+}

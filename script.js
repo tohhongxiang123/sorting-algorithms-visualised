@@ -80,18 +80,21 @@ function sleep(time) {
 async function selectionSort(arr) {
     // sorts array in ascending order using selection sort
     for (let i=0;i < arr.length-1;i++) {
+        if (stop) return arr; // stops execution if stop button pressed
+
         let minimum_index = i;
-        for (let j=i+1;j<arr.length;j++) {
+        for (let j=i+1;j<arr.length;j++) { // look for the minimum element
             highlightActive('active', j);
             if (arr[j] < arr[minimum_index]) {
                 minimum_index = j;
+                highlightActive('swap', minimum_index);
             }
             await sleep(DELAY);
         }
 
-        [arr[i], arr[minimum_index]] = swap(arr[i], arr[minimum_index]);
+        [arr[i], arr[minimum_index]] = swap(arr[i], arr[minimum_index]); // swap minimum element with current 
         displayArr(arr);
-        highlightActive('swap', i, minimum_index);
+        // highlightActive('swap', i, minimum_index);
     }
     displayArr(arr);
     return arr
@@ -100,9 +103,11 @@ async function selectionSort(arr) {
 async function bubbleSort(arr) {
     // sorts array in ascending order using bubbleSort
     for (let i=0;i<arr.length - 1;i++) {
+        if (stop) return arr; // stops execution if stop button pressed
+
         for (let j=0; j<arr.length - 1 - i; j++) {
             if (arr[j] > arr[j+1]) {
-                [arr[j], arr[j+1]] = swap(arr[j], arr[j+1]);
+                [arr[j], arr[j+1]] = swap(arr[j], arr[j+1]); // if left element bigger than current, swap
             }
             displayArr(arr);
             highlightActive('active', j);
@@ -115,6 +120,7 @@ async function bubbleSort(arr) {
     return arr;
 }
 
+// THE ACTUAL MERGESORT. BUT FOR VISUALISATION PURPOSES, WE ARE NOT USING THIS
 // async function merge(left, right) {
 //     let left_cursor = 0;
 //     let right_cursor = 0;
@@ -198,6 +204,8 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
         return arr
     }
 
+    if (stop) return arr; // stops execution if stop button pressed
+
     let middle = Math.floor((end+start)/2);
 
     if (end - start > 1) {
@@ -219,11 +227,13 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
 async function insertionSort(arr){
     // sort arr in ascending order using insertion sort
     for (let i=0; i<arr.length; i++) {
+        if (stop) return arr; // stops execution if stop button pressed
+
         let j = i;
         while (j > 0 && arr[j-1]>arr[j]){
-            [arr[j-1], arr[j]] = swap(arr[j-1], arr[j]);
+            [arr[j-1], arr[j]] = swap(arr[j-1], arr[j]); // if left element is bigger, swap
             displayArr(arr);
-            highlightActive('swap', j, j-1);
+            highlightActive('active', j);
             j--;
             await sleep(DELAY);
         }
@@ -233,12 +243,55 @@ async function insertionSort(arr){
     return arr;
 }
 
+async function quickSort(arr, start=0, end=arr.length-1) {
+    async function partition(arr, start, end) {
+        let pivot = arr[end]; // pivot
+
+        let i = start - 1; // index of starting element
+        for (let j=start; j <= end-1; j++) {
+            // if current element smaller than pivot
+            if (arr[j] < pivot) {
+                i++;
+                [arr[i], arr[j]] = swap(arr[i], arr[j]);
+            }
+
+            displayArr(arr);
+            highlightActive('active', j);
+            highlightActive('swap', end); // highlighting pivot
+
+            await sleep(DELAY);
+        }
+
+        [arr[i+1], arr[end]] = swap(arr[i+1], arr[end]);
+        
+        highlightActive('swap', i+1, end);
+        return i + 1;
+
+    }
+
+    if (stop) return arr; // stops execution if stop button pressed 
+    
+    if (start < end) {
+        // this is technically unhealthy for normal promises. We would use a Promise.all here. But this is sorting
+        // we want to single thread everything
+        pi = await partition(arr, start, end);
+        arr = await quickSort(arr, start, pi - 1);
+        arr = await quickSort(arr, pi + 1, end);
+    }
+
+    displayArr(arr);
+    return arr;
+}
+
 async function sortBy(f) {
+    stop = false;
     arr = await f(arr);
 }
 
 let arr = initArr(50);
-let DELAY = 0.01;
+let stop = false;
+let DELAY = 0.05;
 displayArr(arr);
+document.getElementById('stop').addEventListener('click', () => {stop = true});
 
 
