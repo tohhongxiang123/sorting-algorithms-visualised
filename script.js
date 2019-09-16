@@ -39,6 +39,9 @@ function displayArr(arr) {
         newDiv.style.height = Math.floor(element.clientHeight*arr[i]) + "px";
         newDiv.style.width = element.clientWidth/arr.length + "px";
         newDiv.className = "item"
+        if (arr.length < 600) {
+            newDiv.style.border = "1px solid black";
+        }
         root.appendChild(newDiv);
     }
 
@@ -73,8 +76,8 @@ function swap(a, b) {
 }
 
 function sleep(time) {
-    // delays execution by time (seconds)
-    return new Promise(res => setTimeout(res, time*1000));
+    // delays execution by time (ms)
+    return new Promise(res => setTimeout(res, time));
 }
 
 async function selectionSort(arr) {
@@ -245,14 +248,14 @@ async function insertionSort(arr){
 
 async function quickSort(arr, start=0, end=arr.length-1) {
     async function partition(arr, start, end) {
-        let pivot = arr[end]; // pivot
+        let pivotValue = arr[end]; // pivot
 
-        let i = start - 1; // index of starting element
+        let pivotIndex = start; // index of starting element
         for (let j=start; j <= end-1; j++) {
             // if current element smaller than pivot
-            if (arr[j] < pivot) {
-                i++;
-                [arr[i], arr[j]] = swap(arr[i], arr[j]);
+            if (arr[j] < pivotValue) {
+                [arr[pivotIndex], arr[j]] = swap(arr[pivotIndex], arr[j]);
+                pivotIndex++; // increase starting index
             }
 
             displayArr(arr);
@@ -262,10 +265,10 @@ async function quickSort(arr, start=0, end=arr.length-1) {
             await sleep(DELAY);
         }
 
-        [arr[i+1], arr[end]] = swap(arr[i+1], arr[end]);
+        [arr[pivotIndex], arr[end]] = swap(arr[pivotIndex], arr[end]); // swap pivot and highest value number
         
-        highlightActive('swap', i+1, end);
-        return i + 1;
+        highlightActive('swap', pivotIndex, end);
+        return pivotIndex;
 
     }
 
@@ -285,12 +288,13 @@ async function quickSort(arr, start=0, end=arr.length-1) {
 
 async function sortBy(f) {
     stop = false;
+    DELAY = parseInt(document.getElementById('delay').value || 0);
+    console.log(DELAY);
     arr = await f(arr);
 }
 
 let arr = initArr(50);
 let stop = false;
-let DELAY = 0.05;
 displayArr(arr);
 document.getElementById('stop').addEventListener('click', () => {stop = true});
 
