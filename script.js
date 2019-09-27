@@ -24,8 +24,6 @@ function buttonInitArray() {
     return arr;
 }
 
-
-
 function displayArr(arr) {
     // displays the current array on the root div
     const element = document.getElementById("root");
@@ -77,14 +75,17 @@ function swap(a, b) {
 
 function sleep(time) {
     // delays execution by time (ms)
-    return new Promise(res => setTimeout(res, time));
+    if (stop) {
+        throw Error("Stopped")
+    } else {
+        return new Promise(res => setTimeout(res, time));
+    }
+    
 }
 
 async function selectionSort(arr) {
     // sorts array in ascending order using selection sort
     for (let i=0;i < arr.length-1;i++) {
-        if (stop) return arr; // stops execution if stop button pressed
-
         let minimum_index = i;
         for (let j=i+1;j<arr.length;j++) { // look for the minimum element
             highlightActive('active', j);
@@ -106,8 +107,6 @@ async function selectionSort(arr) {
 async function bubbleSort(arr) {
     // sorts array in ascending order using bubbleSort
     for (let i=0;i<arr.length - 1;i++) {
-        if (stop) return arr; // stops execution if stop button pressed
-
         for (let j=0; j<arr.length - 1 - i; j++) {
             if (arr[j] > arr[j+1]) {
                 [arr[j], arr[j+1]] = swap(arr[j], arr[j+1]); // if left element bigger than current, swap
@@ -116,10 +115,7 @@ async function bubbleSort(arr) {
             highlightActive('active', j);
             await sleep(DELAY);
         }
-        
-        
     }
-
     return arr;
 }
 
@@ -200,14 +196,11 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
         arr = arr.slice(0, left_start).concat(merged_arr).concat(arr.slice(right_end + 1));
         displayArr(arr);
         return arr;
-    
     }
     
     if (start >= end) {
         return arr
     }
-
-    if (stop) return arr; // stops execution if stop button pressed
 
     let middle = Math.floor((end+start)/2);
 
@@ -230,8 +223,6 @@ async function mergeSort(arr, start=0, end=arr.length-1) {
 async function insertionSort(arr){
     // sort arr in ascending order using insertion sort
     for (let i=0; i<arr.length; i++) {
-        if (stop) return arr; // stops execution if stop button pressed
-
         let j = i;
         while (j > 0 && arr[j-1]>arr[j]){
             [arr[j-1], arr[j]] = swap(arr[j-1], arr[j]); // if left element is bigger, swap
@@ -271,8 +262,6 @@ async function quickSort(arr, start=0, end=arr.length-1) {
         return pivotIndex;
 
     }
-
-    if (stop) return arr; // stops execution if stop button pressed 
     
     if (start < end) {
         // this is technically unhealthy for normal promises. We would use a Promise.all here. But this is sorting
@@ -289,8 +278,13 @@ async function quickSort(arr, start=0, end=arr.length-1) {
 async function sortBy(f) {
     stop = false;
     DELAY = parseInt(document.getElementById('delay').value || 0);
-    console.log(DELAY);
-    arr = await f(arr);
+
+    try {
+        arr = await f(arr);
+    } catch(e) {
+        console.log("Execution stopped");
+    }
+    
 }
 
 let arr = initArr(50);
